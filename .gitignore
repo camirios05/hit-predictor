@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.vscode/
+.idea/
+data/*.csv
+*.pkl
+*.joblib
+.DS_Store
