@@ -174,7 +174,7 @@ if __name__ == "__main__":
         except ValueError:
             print("\n Error: Por favor ingresa solo números válidos. Usa punto (.) para decimales.")
             
-    print("\n📈 CONTRASTE EN TIEMPO REAL: BILLBOARD HOT 100 📈")
+    print("\nCONTRASTE EN TIEMPO REAL: BILLBOARD HOT 100 ")
     try:
         df_top10 = scrape_billboard_top_10()
         print(df_top10.head(5).to_string(index=False))
