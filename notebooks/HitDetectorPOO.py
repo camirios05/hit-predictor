@@ -31,6 +31,38 @@ class Cancion:
         self.metricas = metricas
 
 
+# GESTOR DE DATOS (Servicio encargado de la limpieza)
+class GestorDatos:
+    @staticmethod
+    def limpiar_datos(df):
+        # 1. Eliminar duplicados
+        df = df.drop_duplicates(subset=['id_cancion'])
+        
+        # 2. Manejo de valores nulos
+        # Llenar nulos en variables numéricas con la mediana
+        num_cols = ['danceability', 'energy', 'tempo_bpm', 'loudness', 'acousticness']
+        df[num_cols] = df[num_cols].fillna(df[num_cols].median())
+        
+        # Eliminar filas si falta el nombre o el artista
+        df = df.dropna(subset=['nombre', 'artista'])
+        
+        # 3. Normalización de texto (para cruzar datos de Spotify y Billboard)
+        df['nombre'] = df['nombre'].str.lower().str.strip()
+        df['artista'] = df['artista'].str.lower().str.strip()
+        
+        # 4. Transformación de variables
+        # Convertir duración de milisegundos a minutos
+        if 'duracion_ms' in df.columns:
+            df['duracion_minutos'] = df['duracion_ms'] / 60000
+            df = df.drop(columns=['duracion_ms'])
+        
+        # 5. Escalar variables numéricas para el modelo predictivo
+        scaler = MinMaxScaler()
+        variables_a_escalar = ['danceability', 'energy', 'tempo_bpm', 'valence', 'duracion_minutos']
+        df[variables_a_escalar] = scaler.fit_transform(df[variables_a_escalar])
+        
+        return df
+
 
 # 2. EL CEREBRO PREDICTIVO
 
@@ -81,7 +113,6 @@ class CerebroPredictivo:
         return probabilidades[0][1]
 
 
-
 # 3. WEB SCRAPER DE BILLBOARD
 
 def scrape_billboard_top_10():
@@ -101,15 +132,20 @@ def scrape_billboard_top_10():
     return pd.DataFrame(canciones)
 
 
-
 # 4. ZONA DE PRUEBA INTERACTIVA (MODO PRODUCTOR)
 
 if __name__ == "__main__":
     
-    # Asumimos que df_musica ya está cargado dataset.csv
     ruta_archivo = 'dataset.csv' 
     try:
+        # 1. Carga del archivo original
         df_musica = pd.read_csv(r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv")
+        
+        # 2. Llamada al Gestor de Datos para limpiar y transformar el dataset
+        print("\n[INFO] Iniciando proceso de limpieza de datos...")
+        df_musica = GestorDatos.limpiar_datos(df_musica)
+        print("[INFO] Dataset limpiado y escalado correctamente.")
+        
     except FileNotFoundError:
         print(" No se encontró el archivo CSV. Generando datos de prueba...")
         # Generador de respaldo rápido por si el CSV falla
