@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 warnings.filterwarnings('ignore')
 
 
-# 1. ARQUITECTURA POO (MÉTRICAS Y CANCIÓN)
+# ARQUITECTURA POO (MÉTRICAS Y CANCIÓN)
 
 class MetricasAcusticas:
     def __init__(self, tempo, danceability, energy, valence, loudness, acousticness):
@@ -31,7 +31,7 @@ class Cancion:
         self.metricas = metricas
 
 
-# GESTOR DE DATOS (Servicio encargado de la limpieza)
+# Limpieza de datos
 class GestorDatos:
     @staticmethod
     def limpiar_datos(df):
@@ -64,7 +64,7 @@ class GestorDatos:
         return df
 
 
-# 2. EL CEREBRO PREDICTIVO
+# EL CEREBRO PREDICTIVO
 
 class CerebroPredictivo:
     def __init__(self):
@@ -113,7 +113,7 @@ class CerebroPredictivo:
         return probabilidades[0][1]
 
 
-# 3. WEB SCRAPER DE BILLBOARD
+#  WEB SCRAPER DE BILLBOARD
 
 def scrape_billboard_top_10():
     url = "https://www.billboard.com/charts/hot-100/"
@@ -132,16 +132,16 @@ def scrape_billboard_top_10():
     return pd.DataFrame(canciones)
 
 
-# 4. ZONA DE PRUEBA INTERACTIVA (MODO PRODUCTOR)
+#  ZONA DE PRUEBA INTERACTIVA (MODO PRODUCTOR)
 
 if __name__ == "__main__":
     
     ruta_archivo = 'dataset.csv' 
     try:
-        # 1. Carga del archivo original
+        # Carga del archivo original
         df_musica = pd.read_csv(r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv")
         
-        # 2. Llamada al Gestor de Datos para limpiar y transformar el dataset
+        # Llamada al Gestor de Datos para limpiar y transformar el dataset
         print("\n[INFO] Iniciando proceso de limpieza de datos...")
         df_musica = GestorDatos.limpiar_datos(df_musica)
         print("[INFO] Dataset limpiado y escalado correctamente.")
