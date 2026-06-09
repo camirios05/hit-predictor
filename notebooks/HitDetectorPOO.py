@@ -9,10 +9,6 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# =========================================================
-# ARQUITECTURA POO (MÉTRICAS, GÉNERO Y CANCIÓN)
-# =========================================================
-
 class MetricasAcusticas:
     def __init__(self, tempo, danceability, energy, valence, loudness, acousticness):
         self.tempo = tempo
@@ -40,13 +36,8 @@ class Cancion:
             'valence': self.metricas.valence,
             'loudness': self.metricas.loudness,
             'acousticness': self.metricas.acousticness,
-            # CORREGIDO: Ahora usamos 'track_genre' en lugar de 'genre'
             'track_genre': self.genero.nombre 
         }
-
-# =========================================================
-# LIMPIEZA DE DATOS
-# =========================================================
 
 class GestorDatos:
     @staticmethod
@@ -65,7 +56,7 @@ class GestorDatos:
             df['track_name'] = df['track_name'].str.lower().str.strip()
             df['artists'] = df['artists'].str.lower().str.strip()
 
-        # CORREGIDO: Buscamos y estandarizamos 'track_genre'
+        
         if 'track_genre' in df.columns:
             df['track_genre'] = df['track_genre'].str.lower().str.strip()
             df['track_genre'] = df['track_genre'].fillna('desconocido')
@@ -75,10 +66,6 @@ class GestorDatos:
             df = df.drop(columns=['duration_ms'])
 
         return df
-
-# =========================================================
-# EL CEREBRO PREDICTIVO
-# =========================================================
 
 class CerebroPredictivo:
     def __init__(self):
@@ -90,7 +77,6 @@ class CerebroPredictivo:
         )
         
         columnas_numericas = ['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness']
-        # CORREGIDO: Se actualiza a 'track_genre'
         columna_categorica = ['track_genre']
         
         self.preprocesador = ColumnTransformer(
@@ -102,12 +88,10 @@ class CerebroPredictivo:
 
     def entrenar_modelo(self, datos_entrenamiento):
         print("\nENTRENANDO CEREBRO PREDICTIVO...")
-
-        # CORREGIDO: Añadimos 'track_genre' en lugar de 'genre'
         columnas = ['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness', 'track_genre', 'popularity']
 
         if not all(col in datos_entrenamiento.columns for col in columnas):
-            print("Error: Faltan columnas en el dataset (Asegúrate de tener la columna 'track_genre').")
+            print("Error: Faltan columnas en el dataset")
             return False
 
         df_modelo = datos_entrenamiento.dropna(subset=columnas).copy()
@@ -138,12 +122,10 @@ class CerebroPredictivo:
         return probabilidades[0][1]
 
 # =========================================================
-# ZONA DE PRUEBA INTERACTIVA (MODO PRODUCTOR)
-# =========================================================
 
 if __name__ == "__main__":
     try:
-        # Asegúrate de mantener aquí la ruta correcta a tu archivo
+        
         df_musica = pd.read_csv(
             r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv"
         )
@@ -172,16 +154,14 @@ if __name__ == "__main__":
     entrenamiento_exitoso = mi_ia.entrenar_modelo(df_musica)
 
     if entrenamiento_exitoso:
-        print("\n========================================")
         print("       INICIANDO MODO PRODUCTOR         ")
-        print("========================================")
         print("Bienvenido al laboratorio. Ingresa las métricas de tu demo.")
 
         try:
             nombre_demo = input("\nNombre de tu pista/demo: ")
             
             # Pedimos el género musical
-            print("\nTip de géneros en tu dataset: pop, rock, reggaeton, acoustic, etc.")
+            print("\nTip de géneros en tu dataset: pop, rock, reggaeton, acoustic.")
             input_genero = input("Género musical: ")
             mi_genero = GeneroMusical(input_genero)
 
@@ -211,10 +191,7 @@ if __name__ == "__main__":
             )
 
             probabilidad = mi_ia.predecir_exito(mi_demo_cancion)
-
-            print("\n========================================")
             print("        RESULTADO DE HIT PREDICTOR      ")
-            print("========================================")
             print(f"Género detectado: {mi_demo_cancion.genero.nombre.upper()}")
             print(f"Probabilidad matemática de ser un Éxito Viral: {probabilidad * 100:.2f}%")
 
