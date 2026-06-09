@@ -78,7 +78,7 @@ class CerebroPredictivo:
         
         columnas_numericas = ['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness']
         columna_categorica = ['track_genre']
-        
+        #aqui agregamos genero
         self.preprocesador = ColumnTransformer(
             transformers=[
                 ('num', MinMaxScaler(), columnas_numericas),
@@ -101,7 +101,7 @@ class CerebroPredictivo:
 
         X_crudo = df_modelo[['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness', 'track_genre']]
         y = df_modelo['es_hit']
-
+        #esto igual es de genero
         X_procesado = self.preprocesador.fit_transform(X_crudo)
 
         X_train, X_test, y_train, y_test = train_test_split(
