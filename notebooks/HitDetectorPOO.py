@@ -120,12 +120,21 @@ class CerebroPredictivo:
         datos_procesados = self.preprocesador.transform(datos_para_predecir_crudos)
         probabilidades = self.modelo_ml.predict_proba(datos_procesados)
         return probabilidades[0][1]
+    
+    def es_genero_conocido(self, genero_a_buscar):
+        """Revisa la memoria del OneHotEncoder para ver si conoce el género."""
+        # Extraemos el codificador de texto del preprocesador
+        codificador = self.preprocesador.named_transformers_['cat']
+        # Obtenemos la lista oficial de generos  del CSV
+        generos_oficiales = codificador.categories_[0]
+        
+        return genero_a_buscar in generos_oficiales
 
 # =========================================================
 
+
 if __name__ == "__main__":
     try:
-        
         df_musica = pd.read_csv(
             r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv"
         )
@@ -146,7 +155,7 @@ if __name__ == "__main__":
             'valence': np.random.uniform(0.1, 1.0, 1000),
             'loudness': np.random.uniform(-15.0, 0.0, 1000),
             'acousticness': np.random.uniform(0.0, 1.0, 1000),
-            'track_genre': [random.choice(generos_posibles) for _ in range(1000)], # CORREGIDO
+            'track_genre': [random.choice(generos_posibles) for _ in range(1000)], 
             'popularity': np.random.randint(0, 100, 1000)
         })
 
@@ -154,13 +163,12 @@ if __name__ == "__main__":
     entrenamiento_exitoso = mi_ia.entrenar_modelo(df_musica)
 
     if entrenamiento_exitoso:
-        print("       INICIANDO MODO PRODUCTOR         ")
+        print("\n        INICIANDO MODO PRODUCTOR         ")
         print("Bienvenido al laboratorio. Ingresa las métricas de tu demo.")
 
         try:
             nombre_demo = input("\nNombre de tu pista/demo: ")
             
-            # Pedimos el género musical
             print("\nTip de géneros en tu dataset: pop, rock, reggaeton, acoustic.")
             input_genero = input("Género musical: ")
             mi_genero = GeneroMusical(input_genero)
@@ -191,8 +199,14 @@ if __name__ == "__main__":
             )
 
             probabilidad = mi_ia.predecir_exito(mi_demo_cancion)
-            print("        RESULTADO DE HIT PREDICTOR      ")
-            print(f"Género detectado: {mi_demo_cancion.genero.nombre.upper()}")
+            print("\n        RESULTADO DE HIT PREDICTOR      ")
+            
+            
+            if mi_ia.es_genero_conocido(mi_demo_cancion.genero.nombre):
+                print(f"Género Detctado:: {mi_demo_cancion.genero.nombre.upper()}")
+            else:
+                print(f"Omitiendo genero")
+           
             print(f"Probabilidad matemática de ser un Éxito Viral: {probabilidad * 100:.2f}%")
 
             if probabilidad > 0.70:
