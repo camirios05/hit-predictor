@@ -1,14 +1,17 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 from sklearn.metrics import accuracy_score
 import warnings
 
 warnings.filterwarnings('ignore')
 
-
-# ARQUITECTURA POO (MÉTRICAS Y CANCIÓN)
+# =========================================================
+# ARQUITECTURA POO (MÉTRICAS, GÉNERO Y CANCIÓN)
+# =========================================================
 
 class MetricasAcusticas:
     def __init__(self, tempo, danceability, energy, valence, loudness, acousticness):
@@ -19,70 +22,63 @@ class MetricasAcusticas:
         self.loudness = loudness
         self.acousticness = acousticness
 
-    def obtener_vector_caracteristicas(self):
-        """Retorna las métricas en el orden exacto que espera el modelo."""
-        return [
-            self.tempo,
-            self.danceability,
-            self.energy,
-            self.valence,
-            self.loudness,
-            self.acousticness
-        ]
-
+class GeneroMusical:
+    def __init__(self, nombre):
+        self.nombre = nombre.lower().strip()
 
 class Cancion:
-    def __init__(self, nombre, metricas):
+    def __init__(self, nombre, metricas, genero):
         self.nombre = nombre
         self.metricas = metricas
+        self.genero = genero 
+        
+    def obtener_diccionario_datos(self):
+        return {
+            'tempo': self.metricas.tempo,
+            'danceability': self.metricas.danceability,
+            'energy': self.metricas.energy,
+            'valence': self.metricas.valence,
+            'loudness': self.metricas.loudness,
+            'acousticness': self.metricas.acousticness,
+            # CORREGIDO: Ahora usamos 'track_genre' en lugar de 'genre'
+            'track_genre': self.genero.nombre 
+        }
 
-
-# Limpieza de datos
+# =========================================================
+# LIMPIEZA DE DATOS
+# =========================================================
 
 class GestorDatos:
     @staticmethod
     def limpiar_datos(df):
-        # 1. Eliminar duplicados
-        if 'id_cancion' in df.columns:
-            df = df.drop_duplicates(subset=['id_cancion'])
+        if 'track_id' in df.columns:
+            df = df.drop_duplicates(subset=['track_id'])
 
-        # 2. Manejo de valores nulos
-        num_cols = ['danceability', 'energy', 'tempo_bpm', 'loudness', 'acousticness']
-
+        num_cols = ['danceability', 'energy', 'tempo', 'loudness', 'acousticness']
         columnas_existentes = [col for col in num_cols if col in df.columns]
+        
         if columnas_existentes:
-            df[columnas_existentes] = df[columnas_existentes].fillna(
-                df[columnas_existentes].median()
-            )
+            df[columnas_existentes] = df[columnas_existentes].fillna(df[columnas_existentes].median())
 
-        # Eliminar filas si falta el nombre o el artista
-        if 'nombre' in df.columns and 'artista' in df.columns:
-            df = df.dropna(subset=['nombre', 'artista'])
+        if 'track_name' in df.columns and 'artists' in df.columns:
+            df = df.dropna(subset=['track_name', 'artists'])
+            df['track_name'] = df['track_name'].str.lower().str.strip()
+            df['artists'] = df['artists'].str.lower().str.strip()
 
-            # 3. Normalización de texto
-            df['nombre'] = df['nombre'].str.lower().str.strip()
-            df['artista'] = df['artista'].str.lower().str.strip()
+        # CORREGIDO: Buscamos y estandarizamos 'track_genre'
+        if 'track_genre' in df.columns:
+            df['track_genre'] = df['track_genre'].str.lower().str.strip()
+            df['track_genre'] = df['track_genre'].fillna('desconocido')
 
-        # 4. Transformación de variables
-        if 'duracion_ms' in df.columns:
-            df['duracion_minutos'] = df['duracion_ms'] / 60000
-            df = df.drop(columns=['duracion_ms'])
-
-        # 5. Escalar variables numéricas
-        variables_a_escalar = [
-            col for col in
-            ['danceability', 'energy', 'tempo_bpm', 'valence', 'duracion_minutos']
-            if col in df.columns
-        ]
-
-        if variables_a_escalar:
-            scaler = MinMaxScaler()
-            df[variables_a_escalar] = scaler.fit_transform(df[variables_a_escalar])
+        if 'duration_ms' in df.columns:
+            df['duracion_minutos'] = df['duration_ms'] / 60000
+            df = df.drop(columns=['duration_ms'])
 
         return df
 
-
+# =========================================================
 # EL CEREBRO PREDICTIVO
+# =========================================================
 
 class CerebroPredictivo:
     def __init__(self):
@@ -92,104 +88,75 @@ class CerebroPredictivo:
             class_weight='balanced',
             random_state=42
         )
-        self.escalador = MinMaxScaler()
+        
+        columnas_numericas = ['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness']
+        # CORREGIDO: Se actualiza a 'track_genre'
+        columna_categorica = ['track_genre']
+        
+        self.preprocesador = ColumnTransformer(
+            transformers=[
+                ('num', MinMaxScaler(), columnas_numericas),
+                ('cat', OneHotEncoder(handle_unknown='ignore'), columna_categorica)
+            ]
+        )
 
     def entrenar_modelo(self, datos_entrenamiento):
-        print("\nENTRENANDO CEREBRO PREDICTIVO")
+        print("\nENTRENANDO CEREBRO PREDICTIVO...")
 
-        columnas = [
-            'tempo',
-            'danceability',
-            'energy',
-            'valence',
-            'loudness',
-            'acousticness',
-            'popularity'
-        ]
+        # CORREGIDO: Añadimos 'track_genre' en lugar de 'genre'
+        columnas = ['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness', 'track_genre', 'popularity']
 
         if not all(col in datos_entrenamiento.columns for col in columnas):
-            print("Error: Faltan columnas en el dataset.")
+            print("Error: Faltan columnas en el dataset (Asegúrate de tener la columna 'track_genre').")
             return False
 
         df_modelo = datos_entrenamiento.dropna(subset=columnas).copy()
 
         umbral_hit = 60
-        df_modelo['es_hit'] = (
-            df_modelo['popularity'] >= umbral_hit
-        ).astype(int)
+        df_modelo['es_hit'] = (df_modelo['popularity'] >= umbral_hit).astype(int)
 
-        X_crudo = df_modelo[
-            ['tempo', 'danceability', 'energy',
-             'valence', 'loudness', 'acousticness']
-        ]
-
+        X_crudo = df_modelo[['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness', 'track_genre']]
         y = df_modelo['es_hit']
 
-        X_escalado = self.escalador.fit_transform(X_crudo)
-        X = pd.DataFrame(X_escalado, columns=X_crudo.columns)
+        X_procesado = self.preprocesador.fit_transform(X_crudo)
 
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y,
-            test_size=0.2,
-            random_state=42
+            X_procesado, y, test_size=0.2, random_state=42
         )
 
         self.modelo_ml.fit(X_train, y_train)
 
-        precision = accuracy_score(
-            y_test,
-            self.modelo_ml.predict(X_test)
-        )
-
-        print(f"Modelo entrenado. Precisión base: {precision * 100:.2f}%")
+        precision = accuracy_score(y_test, self.modelo_ml.predict(X_test))
+        print(f"Modelo entrenado exitosamente. Precisión en datos no vistos: {precision * 100:.2f}%")
         return True
 
     def predecir_exito(self, demo):
-        vector_datos = demo.metricas.obtener_vector_caracteristicas()
-
-        nombres_columnas = [
-            'tempo',
-            'danceability',
-            'energy',
-            'valence',
-            'loudness',
-            'acousticness'
-        ]
-
-        datos_para_predecir_crudos = pd.DataFrame(
-            [vector_datos],
-            columns=nombres_columnas
-        )
-
-        datos_escalados = self.escalador.transform(
-            datos_para_predecir_crudos
-        )
-
-        probabilidades = self.modelo_ml.predict_proba(datos_escalados)
-
+        datos_dict = demo.obtener_diccionario_datos()
+        datos_para_predecir_crudos = pd.DataFrame([datos_dict])
+        datos_procesados = self.preprocesador.transform(datos_para_predecir_crudos)
+        probabilidades = self.modelo_ml.predict_proba(datos_procesados)
         return probabilidades[0][1]
 
-
+# =========================================================
 # ZONA DE PRUEBA INTERACTIVA (MODO PRODUCTOR)
+# =========================================================
 
 if __name__ == "__main__":
-
     try:
+        # Asegúrate de mantener aquí la ruta correcta a tu archivo
         df_musica = pd.read_csv(
             r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv"
         )
-
         print("\n[INFO] Iniciando proceso de limpieza de datos...")
         df_musica = GestorDatos.limpiar_datos(df_musica)
-        print("[INFO] Dataset limpiado y escalado correctamente.")
+        print("[INFO] Dataset limpiado correctamente.")
 
     except FileNotFoundError:
         print("No se encontró el archivo CSV. Generando datos de prueba...")
-
-        import numpy as np
-
         np.random.seed(42)
-
+        import random
+        generos_posibles = ['pop', 'rock', 'hip-hop', 'electronic', 'reggaeton', 'jazz', 'classical']
+        
         df_musica = pd.DataFrame({
             'tempo': np.random.randint(70, 180, 1000),
             'danceability': np.random.uniform(0.1, 1.0, 1000),
@@ -197,19 +164,26 @@ if __name__ == "__main__":
             'valence': np.random.uniform(0.1, 1.0, 1000),
             'loudness': np.random.uniform(-15.0, 0.0, 1000),
             'acousticness': np.random.uniform(0.0, 1.0, 1000),
+            'track_genre': [random.choice(generos_posibles) for _ in range(1000)], # CORREGIDO
             'popularity': np.random.randint(0, 100, 1000)
         })
 
     mi_ia = CerebroPredictivo()
-
     entrenamiento_exitoso = mi_ia.entrenar_modelo(df_musica)
 
     if entrenamiento_exitoso:
-        print("\nINICIANDO MODO PRODUCTOR")
-        print("Bienvenido al laboratorio. Ingresa las métricas acústicas de tu demo.")
+        print("\n========================================")
+        print("       INICIANDO MODO PRODUCTOR         ")
+        print("========================================")
+        print("Bienvenido al laboratorio. Ingresa las métricas de tu demo.")
 
         try:
-            nombre_demo = input("Nombre de tu pista/demo: ")
+            nombre_demo = input("\nNombre de tu pista/demo: ")
+            
+            # Pedimos el género musical
+            print("\nTip de géneros en tu dataset: pop, rock, reggaeton, acoustic, etc.")
+            input_genero = input("Género musical: ")
+            mi_genero = GeneroMusical(input_genero)
 
             print("\nIntroduce los valores numéricos:")
             demo_tempo = float(input(" - Tempo (BPM, ej. 120.0): "))
@@ -232,26 +206,24 @@ if __name__ == "__main__":
 
             mi_demo_cancion = Cancion(
                 nombre=nombre_demo,
-                metricas=mis_metricas
+                metricas=mis_metricas,
+                genero=mi_genero
             )
 
             probabilidad = mi_ia.predecir_exito(mi_demo_cancion)
 
-            print("\nRESULTADO DE HIT PREDICTOR")
-            print(
-                f"Probabilidad matemática de ser un Éxito Viral: "
-                f"{probabilidad * 100:.2f}%"
-            )
+            print("\n========================================")
+            print("        RESULTADO DE HIT PREDICTOR      ")
+            print("========================================")
+            print(f"Género detectado: {mi_demo_cancion.genero.nombre.upper()}")
+            print(f"Probabilidad matemática de ser un Éxito Viral: {probabilidad * 100:.2f}%")
 
             if probabilidad > 0.70:
                 print("Veredicto: Tiene un ADN altamente compatible con los éxitos.")
             elif probabilidad > 0.45:
-                print("Veredicto: Buen potencial, pero el terreno es competitivo.")
+                print("Veredicto: Buen potencial, pero el terreno es competitivo para este género.")
             else:
                 print("Veredicto: Riesgo alto de pasar desapercibida. Sugiere reestructuración.")
 
         except ValueError:
-            print(
-                "\nError: Por favor ingresa solo números válidos. "
-                "Usa punto (.) para decimales."
-            )
+            print("\nError: Por favor ingresa solo números válidos. Usa punto (.) para decimales.")
