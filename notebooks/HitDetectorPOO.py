@@ -75,7 +75,6 @@ class CerebroPredictivo:
             class_weight='balanced',
             random_state=42
         )
-        
         columnas_numericas = ['tempo', 'danceability', 'energy', 'valence', 'loudness', 'acousticness']
         columna_categorica = ['track_genre']
         #aqui agregamos genero
@@ -129,9 +128,6 @@ class CerebroPredictivo:
         generos_oficiales = codificador.categories_[0]
         
         return genero_a_buscar in generos_oficiales
-
-# =========================================================
-
 
 if __name__ == "__main__":
     try:

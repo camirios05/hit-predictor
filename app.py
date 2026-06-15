@@ -13,7 +13,6 @@ warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
-# --- AQUÍ VA TU CÓDIGO EXACTAMENTE COMO LO TIENES ---
 class MetricasAcusticas:
     def __init__(self, tempo, danceability, energy, valence, loudness, acousticness):
         self.tempo = tempo
@@ -101,12 +100,10 @@ class CerebroPredictivo:
         generos_oficiales = codificador.categories_[0]
         return genero_a_buscar in generos_oficiales
 
-# --- INICIALIZACIÓN GLOBAL DEL MODELO ---
 mi_ia = CerebroPredictivo()
 
 def inicializar_ia():
     try:
-        # Intenta cargar tu CSV (ajusta la ruta si la vas a cambiar)
         df_musica = pd.read_csv(r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv")
         df_musica = GestorDatos.limpiar_datos(df_musica)
     except FileNotFoundError:
@@ -125,20 +122,16 @@ def inicializar_ia():
         })
     mi_ia.entrenar_modelo(df_musica)
 
-# Entrenar al arrancar la app
 inicializar_ia()
 
-# --- RUTAS DE FLASK (CONEXIÓN WEB) ---
 @app.route('/')
 def home():
-    # Sirve la página web que creamos en HTML
     return render_template('index.html')
 
 @app.route('/predecir', methods=['POST'])
 def predecir():
     datos = request.json
     
-    # Recreamos los objetos con los datos de la web
     mi_genero = GeneroMusical(datos['genero'])
     mis_metricas = MetricasAcusticas(
         tempo=datos['tempo'],
@@ -150,11 +143,9 @@ def predecir():
     )
     mi_demo_cancion = Cancion(nombre=datos['nombre'], metricas=mis_metricas, genero=mi_genero)
     
-    # Hacemos la predicción
     probabilidad = mi_ia.predecir_exito(mi_demo_cancion)
     conocido = mi_ia.es_genero_conocido(mi_demo_cancion.genero.nombre)
     
-    # Lógica de veredicto
     if probabilidad > 0.70:
         veredicto = "Tiene un ADN altamente compatible con los éxitos."
     elif probabilidad > 0.45:
