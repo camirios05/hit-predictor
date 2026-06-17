@@ -32,7 +32,7 @@ class Cancion:
         self.metricas = metricas
         self.genero = genero 
         
-    def obtener_diccionario_datos(self):
+    def dicdatos(self):
         return {
             'tempo': self.metricas.tempo,
             'danceability': self.metricas.danceability,
@@ -87,7 +87,7 @@ class CerebroPredictivo:
         return True
 
     def eshit(self, demo):
-        datos = demo.obtener_diccionario_datos()
+        datos = demo.dicdatos()
         datos_crudos = pd.DataFrame([datos])
         datos_final = self.preprocesador.transform(datos_crudos)
         prob = self.modelo_ml.predict_proba(datos_final)
