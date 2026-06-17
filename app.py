@@ -102,7 +102,7 @@ ia = CerebroPredictivo()
 
 def iastart():
     try:
-        df_musica = pd.read_csv(r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv")
+        df_musica = pd.read_csv("./dataset.csv")
         df_musica = limpiar_datos(df_musica)
     except FileNotFoundError:
         print("CSV no encontrado. Generando datos de prueba para la web...")
