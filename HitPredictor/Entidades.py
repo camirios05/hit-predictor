@@ -17,7 +17,7 @@ class Cancion:
         self.metricas = metricas
         self.genero = genero 
         
-    def obtener_diccionario_datos(self):
+    def dicdatos(self):
         return {
             'tempo': self.metricas.tempo,
             'danceability': self.metricas.danceability,

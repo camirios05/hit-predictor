@@ -20,7 +20,7 @@ class CerebroPredictivo:
             ]
         )
 
-    def entrenar_desde_csv(self, ruta_csv):
+    def lecturacsv(self, ruta_csv):
         try:
             df_musica = pd.read_csv(ruta_csv)
             df_musica = limpiar_datos(df_musica)
@@ -54,7 +54,7 @@ class CerebroPredictivo:
         return True
 
     def eshit(self, demo):
-        datos = demo.obtener_diccionario_datos()
+        datos = demo.dicdatos()
         datos_crudos = pd.DataFrame([datos])
         datos_final = self.preprocesador.transform(datos_crudos)
         prob = self.modelo_ml.predict_proba(datos_final)

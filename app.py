@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 ia = CerebroPredictivo()
 
-ia.entrenar_desde_csv("./dataset.csv")
+ia.lecturacsv("./dataset.csv")
 
 @app.route('/')
 def home():
