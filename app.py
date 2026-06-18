@@ -13,7 +13,7 @@ app = Flask(__name__)
 ia = CerebroPredictivo()
 
 # OJO: Si cambias de computadora, recuerda actualizar esta ruta a tu dataset.csv
-ia.entrenar_desde_csv(r"C:\Users\lenovo\Documents\ASemestre 4\Analisis\PROYECTO\dataset.csv")
+ia.entrenar_desde_csv(r"PROYECTO\dataset.csv")
 
 @app.route('/')
 def home():
