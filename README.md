@@ -112,6 +112,27 @@ CTRL + C
 ```
 
 ---
+## Glosario de generos musicales en el dataset
+| Género 1 | Género 2 | Género 3 | Género 4 | Género 5 | Género 6 |
+|---|---|---|---|---|---|
+| acoustic | afrobeat | alt-rock | alternative | ambient | anime |
+| black-metal | bluegrass | blues | brazilian | breakbeat | british |
+| cantopop | chicago-house | children | chill | classical | club |
+| comedy | country | dance | dancehall | death-metal | deep-house |
+| disco | disney | drum-and-bass | dub | dubstep | edm |
+| electro | electronic | emo | folk | forro | french |
+| funk | garage | german | gospel | gothic | grindcore |
+| groove | grunge | guitar | happy | hard-rock | hardcore |
+| hardstyle | heavy-metal | hip-hop | honky-tonk | house | idm |
+| indian | indie | indie-pop | industrial | iranian | j-dance |
+| j-idol | j-pop | jazz | k-pop | kids | latin |
+| latino | malay | mandopop | metal | metalcore | minimal-techno |
+| movie | mpb | new-age | opera | pagode | party |
+| piano | pop | punk | punk-rock | r-n-b | reggae |
+| reggaeton | rock | rock-n-roll | romance | salsa | samba |
+| sertanejo | show-tunes | singer-songwriter | ska | sleep | songwriter |
+| soul | spanish | study | swedish | synth-pop | tango |
+| techno | trance | trip-hop | turkish | world-music | |
 
 ## Glosario de métricas acústicas
 
