@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
-from HitPredictor.Preprocessing import limpiar_datos
+from HitPredictor.Preprocesador import limpiar_datos
 
 class CerebroPredictivo:
     def __init__(self):
@@ -27,7 +27,7 @@ class CerebroPredictivo:
         except FileNotFoundError:
             print("CSV no encontrado. Generando datos de prueba para la web...")
             np.random.seed(42)
-            generosdata = ['pop', 'rock', 'hip-hop', 'electronic', 'reggaeton', 'jazz', 'classical']
+            generosd = ['pop', 'rock', 'hip-hop', 'electronic', 'reggaeton', 'jazz', 'classical']
             df_musica = pd.DataFrame({
                 'tempo': np.random.randint(70, 180, 1000),
                 'danceability': np.random.uniform(0.1, 1.0, 1000),
@@ -35,7 +35,7 @@ class CerebroPredictivo:
                 'valence': np.random.uniform(0.1, 1.0, 1000),
                 'loudness': np.random.uniform(-15.0, 0.0, 1000),
                 'acousticness': np.random.uniform(0.0, 1.0, 1000),
-                'track_genre': [random.choice(generosdata) for _ in range(1000)], 
+                'track_genre': [random.choice(generosd) for _ in range(1000)], 
                 'popularity': np.random.randint(0, 100, 1000)
             })
         
