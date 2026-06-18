@@ -113,6 +113,8 @@ CTRL + C
 
 ---
 ## Glosario de generos musicales en el dataset
+| Género | Género | Género | Género | Género | Género |
+|---|---|---|---|---|---|
 | acoustic | afrobeat | alt-rock | alternative | ambient | anime |
 | black-metal | bluegrass | blues | brazilian | breakbeat | british |
 | cantopop | chicago-house | children | chill | classical | club |
