@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import warnings
 
-
 from HitPredictor.Entidades import MetricasAcusticas, GeneroMusical, Cancion
 from HitPredictor.Predictor import CerebroPredictivo
 
@@ -9,9 +8,7 @@ warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
-
 ia = CerebroPredictivo()
-
 
 ia.entrenar_desde_csv("./dataset.csv")
 
@@ -22,7 +19,6 @@ def home():
 @app.route('/predecir', methods=['POST'])
 def predecir():
     datos = request.json
-    
     
     migenero = GeneroMusical(datos['genero'])
     mismetricas = MetricasAcusticas(
@@ -35,7 +31,6 @@ def predecir():
     )
     demo = Cancion(nombre=datos['nombre'], metricas=mismetricas, genero=migenero)
     
-  
     probabilidad = ia.eshit(demo)
     conocido = ia.genero(demo.genero.nombre)
     

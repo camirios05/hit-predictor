@@ -6,7 +6,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
-
 from HitPredictor.Preprocessing import limpiar_datos
 
 class CerebroPredictivo:
