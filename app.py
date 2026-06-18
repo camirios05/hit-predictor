@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import warnings
 
-# ¡Importamos las herramientas desde tu nuevo paquete!
+
 from HitPredictor.Entidades import MetricasAcusticas, GeneroMusical, Cancion
 from HitPredictor.Predictor import CerebroPredictivo
 
@@ -9,10 +9,10 @@ warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
-# Inicializamos y entrenamos la IA una sola vez al arrancar el servidor
+
 ia = CerebroPredictivo()
 
-# OJO: Si cambias de computadora, recuerda actualizar esta ruta a tu dataset.csv
+
 ia.entrenar_desde_csv(r"PROYECTO\dataset.csv")
 
 @app.route('/')
@@ -23,7 +23,7 @@ def home():
 def predecir():
     datos = request.json
     
-    # Usamos las entidades de nuestro paquete para organizar la petición
+    
     migenero = GeneroMusical(datos['genero'])
     mismetricas = MetricasAcusticas(
         tempo=datos['tempo'],
@@ -35,7 +35,7 @@ def predecir():
     )
     demo = Cancion(nombre=datos['nombre'], metricas=mismetricas, genero=migenero)
     
-    # Pasamos los objetos a la IA
+  
     probabilidad = ia.eshit(demo)
     conocido = ia.genero(demo.genero.nombre)
     
